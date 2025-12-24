@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWP Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="calculator-wrapper">
+        <div class="container">
+            <div class="calculator-card">
+                <div class="calculator-header">
+                    <img src="assets/bos.png" alt="FinCalculators Logo" class="logo mb-3">
+                    <h1>SWP Calculator</h1>
+                    <p class="text-info">Calculate your Systematic Withdrawal Plan returns</p>
+                </div>
+                
+                <div class="calculator-body">
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="returnRate">Annual Return Rate (%)</label>
+                            <input type="number" id="returnRate" class="form-control" step="0.1" min="0" placeholder="e.g., 8">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="inflationRate">Annual Inflation Rate (%)</label>
+                            <input type="number" id="inflationRate" class="form-control" step="0.1" min="0" placeholder="e.g., 6">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="corpusAmount">Initial Corpus Amount (₹)</label>
+                            <input type="number" id="corpusAmount" class="form-control" min="0" placeholder="e.g., 10000000">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="monthlySWP">Monthly Withdrawal (₹)</label>
+                            <input type="number" id="monthlySWP" class="form-control" min="0" placeholder="e.g., 50000">
+                        </div>
+                    </div>
+                    
+                    <button class="calculate-btn" id="calculateBtn">
+                        <i class="fas fa-calculator"></i> Calculate SWP
+                    </button>
+                    
+                    <div class="results-container" id="resultsContainer">
+                        <h3>SWP Results</h3>
+                        <div class="result-cards">
+                            <div class="result-card">
+                                <div class="result-icon">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="result-content">
+                                    <h5>Final Corpus Value</h5>
+                                    <div class="result-value" id="finalValue">₹ 0</div>
+                                </div>
+                            </div>
+                            
+                            <div class="result-card">
+                                <div class="result-icon">
+                                    <i class="fas fa-hand-holding-usd"></i>
+                                </div>
+                                <div class="result-content">
+                                    <h5>Total Withdrawals</h5>
+                                    <div class="result-value" id="totalWithdrawals">₹ 0</div>
+                                </div>
+                            </div>
+                            
+                            <div class="result-card">
+                                <div class="result-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="result-content">
+                                    <h5>Total Returns</h5>
+                                    <div class="result-value" id="totalReturns">₹ 0</div>
+                                </div>
+                            </div>
+                            
+                            <div class="result-card">
+                                <div class="result-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="result-content">
+                                    <h5>SWP Duration</h5>
+                                    <div class="result-value" id="swpDuration">0 Years</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- This section will be hidden initially and shown after calculation -->
+            <div class="tabs" id="resultsTabs" style="display: none;">
+                <div class="tab active" data-tab="breakdown">
+                    <i class="fas fa-table"></i> SWP Breakdown
+                </div>
+            </div>
+            
+            <div class="tab-content" id="breakdown-tab" style="display: none;">
+                <div class="calculator-card">
+                    <div class="calculator-body">
+                        <h2><i class="fas fa-table"></i> SWP Breakdown</h2>
+                        
+                        <!-- Breakdown type selector -->
+                        <div class="breakdown-selector" style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; gap: 10px;">
+                                <button id="monthlyBreakdownBtn" class="calculate-btn" style="width: auto; padding: 0.5rem 1rem;">
+                                    <i class="fas fa-calendar-alt"></i> Monthly Breakdown
+                                </button>
+                                <button id="yearlyBreakdownBtn" class="calculate-btn" style="width: auto; padding: 0.5rem 1rem; background-color: var(--secondary-color);">
+                                    <i class="fas fa-calendar"></i> Yearly Breakdown
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Monthly breakdown content -->
+                        <div id="monthlyBreakdown" class="breakdown-content active">
+                            <h3><i class="fas fa-chart-line"></i> Monthly SWP Projection</h3>
+                            <div class="chart-container">
+                                <canvas id="monthlyChart"></canvas>
+                            </div>
+                            
+                            <h3><i class="fas fa-table"></i> Monthly Breakdown Table</h3>
+                            <div class="monthly-table-container">
+                                <table id="monthlyTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Month Number</th>
+                                            <th>Month</th>
+                                            <th>Year</th>
+                                            <th>Beginning Value</th>
+                                            <th>SWP Amount</th>
+                                            <th>Return Rate (%)</th>
+                                            <th>Ending Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="monthlyTableBody">
+                                        <!-- Monthly data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Yearly breakdown content -->
+                        <div id="yearlyBreakdown" class="breakdown-content">
+                            <h3><i class="fas fa-chart-line"></i> Yearly SWP Projection</h3>
+                            <div class="chart-container">
+                                <canvas id="yearlyChart"></canvas>
+                            </div>
+                            
+                            <h3><i class="fas fa-table"></i> Yearly Breakdown Table</h3>
+                            <div class="yearly-table-container">
+                                <table id="yearlyTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Year Number</th>
+                                            <th>Year</th>
+                                            <th>Investment</th>
+                                            <th>Withdrawn</th>
+                                            <th>Ending Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="yearlyTableBody">
+                                        <!-- Yearly data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
